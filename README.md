@@ -53,6 +53,8 @@ If you have a 1,000-page website but only want to know which images are broken, 
 | **Only broken images/logos.** | `python website_audit_crawler.py https://website.com --mode images` |
 | **Only broken links/pages.** | `python website_audit_crawler.py https://website.com --mode links` |
 | **Only check SEO tags (Titles/H1s).** | `python website_audit_crawler.py https://website.com --mode seo` |
+| **Check server health & redirects.** | `python website_audit_crawler.py https://website.com --mode technical` |
+| **Map sitemaps & WordPress posts.** | `python website_audit_crawler.py https://website.com --mode content` |
 
 *(Mac users: Remember to use `python3` instead of `python`!)*
 
