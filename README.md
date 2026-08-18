@@ -57,8 +57,8 @@ Designed for websites with tens of thousands of resources, this crawler does not
 - Recommended: Run inside a virtual environment.
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/Eagle7-Website-Audit-Crawler.git
-cd Eagle7-Website-Audit-Crawler
+git clone https://github.com/YOUR_USERNAME/E7_WAC.git
+cd E7_WAC
 pip install -r requirements.txt
 ```
 
