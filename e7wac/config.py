@@ -1,4 +1,5 @@
 VERSION = "0.8.0"
+DEFAULT_URL = "https://eagle7.in"
 
 USER_AGENT = f"Eagle7 Website Audit Crawler/{VERSION}"
 TIMEOUT = 20
