@@ -1,10 +1,19 @@
-import msvcrt
+import sys
 
 _is_paused = False
 _stop_requested = False
 
+try:
+    import msvcrt
+    _has_msvcrt = True
+except ImportError:
+    _has_msvcrt = False
+
 def check_controls():
     global _is_paused, _stop_requested
+    if not _has_msvcrt:
+        return
+        
     while msvcrt.kbhit():
         char = msvcrt.getch()
         if char.lower() == b'p':
