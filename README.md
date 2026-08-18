@@ -1,6 +1,6 @@
-# Eagle7 Website Audit Crawler (E7 WAC)
+# Eagle7 Website Audit Crawler (E7_WAC)
 
-Welcome! **E7 WAC** is a powerful but easy-to-use tool that scans your website for broken links, missing images, and SEO issues. Once it finishes, it hands you a beautifully formatted Excel report showing exactly what needs to be fixed.
+Welcome! **E7_WAC** is a powerful but easy-to-use tool that scans your website for broken links, missing images, and SEO issues. Once it finishes, it hands you a beautifully formatted Excel report showing exactly what needs to be fixed.
 
 Whether you are a beginner looking to check a single website or a developer needing deep technical data, this guide will get you up and running in minutes.
 
@@ -122,7 +122,7 @@ Most basic crawlers blindly follow a redirect and report a `200 OK` final destin
 
 Use this tool for whatever you'd like, including for processing images as part of a commercial project! 
 
-*   You **MAY NOT** repackage this tool and sell it, and any variations or improvements of this tool that are released must remain under the same license, and must include the name **"Eagle7 Website Audit Crawler"**.
+*   You **MAY NOT** repackage this tool and sell it, and any variations or improvements of this tool that are released must remain under the same license, and must include the name **"Eagle7 Website Audit Crawler"** or **"E7_WAC"**.
 *   You **MAY NOT** offer inference with this model as a paid API service. 
 
 If you run a commercial software package or inference service and wish to incorporate this tool into your software, shoot us an email to work out an agreement! We promise we're easy to work with: [shahbaz@eagle7.in](mailto:shahbaz@eagle7.in). 
