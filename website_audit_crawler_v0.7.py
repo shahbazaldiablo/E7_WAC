@@ -449,7 +449,12 @@ def check_resource_task(session, url, kind, page_url, netloc):
 
 
 def main():
-    root = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_URL
+    force_new = "--new" in sys.argv
+    force_resume = "--resume" in sys.argv
+    
+    args = [arg for arg in sys.argv[1:] if arg not in ("--new", "--resume")]
+    root = args[0] if args else DEFAULT_URL
+    
     if not root.startswith(("http://", "https://")): root = "https://" + root
     root = clean_url(root)
     if not root.endswith("/"): root += "/"
@@ -463,8 +468,34 @@ def main():
     
     if folders:
         folder_name = sorted(folders)[-1]
-        print(f"\n[!] Existing scan found.\nResuming: {folder_name}")
-        is_resume = True
+        if force_new:
+            print("\n-> Starting a fresh scan (--new flag provided)...")
+            is_resume = False
+            folder_name = f"{safe_name}_website_audit_{stamp}"
+            os.makedirs(folder_name, exist_ok=True)
+        elif force_resume:
+            print(f"\n-> Resuming existing scan: {folder_name} (--resume flag provided)...")
+            is_resume = True
+        else:
+            print(f"\n[!] Existing scan found: {folder_name}")
+            print("Press 'N' within 10 seconds to start a NEW scan instead...")
+            start_time = time.perf_counter()
+            start_new = False
+            while time.perf_counter() - start_time < 10:
+                if msvcrt.kbhit():
+                    char = msvcrt.getch()
+                    if char.lower() == b'n':
+                        start_new = True
+                        break
+                        
+            if start_new:
+                print("\n-> Starting a fresh scan...")
+                folder_name = f"{safe_name}_website_audit_{stamp}"
+                os.makedirs(folder_name, exist_ok=True)
+                is_resume = False
+            else:
+                print("\n-> Resuming existing scan...")
+                is_resume = True
     else:
         folder_name = f"{safe_name}_website_audit_{stamp}"
         os.makedirs(folder_name, exist_ok=True)
@@ -533,6 +564,8 @@ def main():
             
         print(f"\n[PHASE 2] Crawling {len(discovered_pages)} discovered pages...\n")
         
+        initial_checked_count = len(checked_pages) if is_resume else 0
+        
         while queue and len(checked_pages) < MAX_PAGES:
             check_controls()
             if is_paused:
@@ -549,23 +582,19 @@ def main():
             checked_pages.add(page_url)
             c.execute("INSERT OR IGNORE INTO checked_pages VALUES (?)", (page_url,))
             
-            recent_completions.append(time.perf_counter())
-            if len(recent_completions) > 1:
-                t_diff = recent_completions[-1] - recent_completions[0]
-                rate_per_sec = (len(recent_completions) - 1) / t_diff if t_diff > 0 else 0
+            session_checked = len(checked_pages) - initial_checked_count
+            elapsed = time.perf_counter() - started
+            
+            if elapsed < 1.0 and session_checked <= 1:
+                rate = 0
             else:
-                rate_per_sec = 0
+                rate = session_checked / elapsed * 60 if elapsed else 0
                 
-            rate_per_min = rate_per_sec * 60
             denominator = max(len(discovered_pages), len(checked_pages))
-            eta = (denominator - len(checked_pages)) / rate_per_min if rate_per_min else 0
+            pct = len(checked_pages) / denominator * 100 if denominator else 0
+            eta = (denominator - len(checked_pages)) / rate if rate else 0
             
-            if len(checked_pages) < 5 or rate_per_min == 0:
-                eta_str = "Calculating..."
-            else:
-                eta_str = f"~{eta:.1f} m"
-            
-            print(f"Pages: {len(checked_pages)} crawled / {denominator} discovered | Resources: {len(checked_resources)} | {rate_per_min:.1f} p/min | ETA: {eta_str}")
+            print(f"[{pct:6.2f}%] Pages {len(checked_pages)}/{denominator} | Discovered {len(discovered_pages)} | Resources {len(checked_resources)} | {rate:.1f} p/min | ETA {eta:.1f} m")
             print(f"  -> {page_url}")
             
             result = fetch_url(session, page_url, netloc, stream=False, is_page=True)
