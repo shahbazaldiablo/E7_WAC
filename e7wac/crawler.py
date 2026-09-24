@@ -2,7 +2,7 @@ import time
 from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from .controls import check_controls, is_paused
-from .http import fetch_url
+from .http import fetch_url, is_same_domain
 from .discovery import discover_assets, clean_url
 from .seo import extract_seo_tags
 from .models import categorize_status, get_classification, determine_severity
