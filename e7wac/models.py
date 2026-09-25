@@ -20,13 +20,17 @@ def get_classification(url, root_netloc, kind=""):
     path = urlparse(url).path.lower()
     host = urlparse(url).netloc.lower()
     
+    n1 = host[4:] if host.startswith("www.") else host
+    n2 = root_netloc.lower()
+    n2 = n2[4:] if n2.startswith("www.") else n2
+    
     if path.endswith(".xml") or "sitemap" in path:
         return "Sitemap"
         
     if "/wp-json/" in path or "/oembed/" in path:
         return "WP Technical"
         
-    if host != root_netloc.lower():
+    if n1 != n2:
         text = host + path
         patterns = [
             r"\bstaging\b", r"\bstage\b", r"\bdev\b", r"\bdevelopment\b",

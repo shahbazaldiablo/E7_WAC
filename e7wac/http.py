@@ -5,7 +5,13 @@ from .config import HEAVY_EXTENSIONS
 
 def is_same_domain(u, root_netloc):
     parsed = urlparse(u)
-    return parsed.scheme in ("http", "https") and parsed.netloc.lower() == root_netloc.lower()
+    if parsed.scheme not in ("http", "https"):
+        return False
+    n1 = parsed.netloc.lower()
+    n2 = root_netloc.lower()
+    if n1.startswith("www."): n1 = n1[4:]
+    if n2.startswith("www."): n2 = n2[4:]
+    return n1 == n2
 
 def fetch_url(session, url, root_netloc, timeout=20, stream=False, is_page=False):
     started = time.perf_counter()

@@ -1,4 +1,5 @@
 # Eagle7 Website Audit Crawler (E7_WAC)
+**Version:** 0.9.1
 
 Welcome! **E7_WAC** is a powerful, CMS-agnostic tool that scans any website (WordPress, TYPO3, Shopify, custom HTML, and more) for broken links, missing images, and SEO issues. Once it finishes, it hands you a beautifully formatted Excel report showing exactly what needs to be fixed.
 

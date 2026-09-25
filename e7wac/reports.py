@@ -33,7 +33,8 @@ def generate_reports_from_db(db_name, root, stamp, safe_name, elapsed, folder_na
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     
-    xlsx_filename = os.path.join(folder_name, f"{safe_name}_website_audit_v0.8.0_{stamp}.xlsx")
+    from .config import VERSION
+    xlsx_filename = os.path.join(folder_name, f"{safe_name}_website_audit_v{VERSION}_{stamp}.xlsx")
     csv_filename = xlsx_filename.replace(".xlsx", ".csv")
     
     c.execute("SELECT COUNT(*) FROM discovered_pages")

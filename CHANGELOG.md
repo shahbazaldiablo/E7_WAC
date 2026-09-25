@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.9.1] - 2026-09-25
+
+### Fixed
+- Fixed a classification bug where `www.` prefix caused internal links to be incorrectly filed into the `External Links` Excel tab.
+- Excel reports now dynamically use the correct crawler version in their filename.
+
 ## [0.9.0] - 2026-09-25
 
 ### Added
