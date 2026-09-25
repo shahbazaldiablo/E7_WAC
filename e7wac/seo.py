@@ -1,9 +1,10 @@
 import re
+import json
 from bs4 import BeautifulSoup
 
 def extract_seo_tags(html_content):
     if not html_content:
-        return {"seo_title": "", "seo_desc": "", "seo_canonical": "", "seo_robots": "", "seo_h1": ""}
+        return {"seo_title": "", "seo_desc": "", "seo_canonical": "", "seo_robots": "", "seo_h1": "", "seo_hreflang": ""}
     
     soup = BeautifulSoup(html_content, "html.parser")
     title = soup.find("title")
@@ -11,6 +12,14 @@ def extract_seo_tags(html_content):
     canonical_tag = soup.find("link", rel=re.compile(r"^canonical$", re.I))
     robots_tag = soup.find("meta", attrs={"name": re.compile(r"^robots$", re.I)})
     h1_tag = soup.find("h1")
+    
+    # Extract hreflang
+    hreflangs = {}
+    for tag in soup.find_all("link", rel=re.compile(r"^alternate$", re.I)):
+        hl = tag.get("hreflang")
+        href = tag.get("href")
+        if hl and href:
+            hreflangs[hl.strip()] = href.strip()
     
     h1_text = h1_tag.text.strip() if h1_tag else ""
     all_h1s = soup.find_all("h1")
@@ -22,5 +31,6 @@ def extract_seo_tags(html_content):
         "seo_desc": desc_tag.get("content", "").strip() if desc_tag else "",
         "seo_canonical": canonical_tag.get("href", "").strip() if canonical_tag else "",
         "seo_robots": robots_tag.get("content", "").strip() if robots_tag else "",
-        "seo_h1": h1_text
+        "seo_h1": h1_text,
+        "seo_hreflang": json.dumps(hreflangs) if hreflangs else ""
     }

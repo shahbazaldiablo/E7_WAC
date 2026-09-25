@@ -111,7 +111,9 @@ def main():
     try:
         if not is_resume and args.mode in ("full", "seo", "images", "content", "technical"):
             print("\n[PHASE 1] Discovering content via WP REST, Sitemaps & Robots...")
-            discover_wp_and_sitemaps(session, root, netloc, lambda u, table: db_add_page(c, u, discovered_pages, queue, table), respect_robots, args.timeout)
+            cms_type = discover_wp_and_sitemaps(session, root, netloc, lambda u, table: db_add_page(c, u, discovered_pages, queue, table), respect_robots, args.timeout)
+            if cms_type:
+                c.execute("UPDATE scan_metadata SET cms_type = ? WHERE id = 1", (cms_type,))
             conn.commit()
             
         process_queue(session, queue, checked_pages, discovered_pages, checked_resources, netloc, conn, c, args.mode, args.workers, args.max_pages, args.max_resources, args.timeout, args.delay)

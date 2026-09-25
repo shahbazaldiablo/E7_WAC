@@ -19,16 +19,42 @@ def extract_css_urls(text):
     return [match.strip().strip("'\"") for match in re.findall(r"url\(\s*([^)]*)\)", text, re.IGNORECASE)
             if match.strip() and not match.strip().lower().startswith("data:")]
 
+def detect_cms(html_content, headers=None):
+    if not html_content: return "Unknown"
+    soup = BeautifulSoup(html_content, "html.parser")
+    generator = soup.find("meta", attrs={"name": re.compile(r"^generator$", re.I)})
+    if generator:
+        gen_content = generator.get("content", "").lower()
+        if "typo3" in gen_content: return "TYPO3"
+        if "wordpress" in gen_content: return "WordPress"
+        if "joomla" in gen_content: return "Joomla"
+        if "drupal" in gen_content: return "Drupal"
+    
+    html_str = html_content.lower()
+    if "wp-content/themes" in html_str or "wp-content/plugins" in html_str or "wp-includes" in html_str: return "WordPress"
+    if "typo3temp/" in html_str or "typo3conf/" in html_str: return "TYPO3"
+    if "cdn.shopify.com" in html_str: return "Shopify"
+    if "magento" in html_str: return "Magento"
+    if 'id="__next"' in html_str or '_next/static' in html_str: return "Next.js"
+    if "squarespace.com" in html_str: return "Squarespace"
+    if "wix.com" in html_str: return "Wix"
+    if "webflow.com" in html_str: return "Webflow"
+    
+    return "Unknown"
+
 def discover_assets(page_url, html_content, mode):
     found = []
     if not html_content: return found
     soup = BeautifulSoup(html_content, "html.parser")
+    
+    base_tag = soup.find("base", href=True)
+    base_href = base_tag["href"].strip() if base_tag else page_url
 
     def add_asset(raw_url, kind):
         if not raw_url: return
         raw = raw_url.strip()
         if raw.lower().startswith(("data:", "javascript:", "mailto:", "tel:", "#")): return
-        u = clean_url(urljoin(page_url, raw))
+        u = clean_url(urljoin(base_href, raw))
         if urlparse(u).scheme in ("http", "https"):
             found.append((u, kind))
 
@@ -53,7 +79,7 @@ def discover_assets(page_url, html_content, mode):
         return found
         
     # Links/Full modes
-    for tag in soup.find_all("a", href=True): add_asset(tag["href"], "Link")
+    for tag in soup.find_all(["a", "area"], href=True): add_asset(tag["href"], "Link")
     for tag in soup.find_all("img"):
         add_asset(tag.get("src"), "Image")
         for x in (tag.get("srcset") or "").split(","):
@@ -76,6 +102,17 @@ def discover_assets(page_url, html_content, mode):
 def discover_wp_and_sitemaps(session, root_url, netloc, add_page_callback, respect_robots, timeout):
     import time
     from .controls import check_controls, is_paused
+    
+    # Try CMS Detection on homepage
+    cms = "Unknown"
+    try:
+        r = session.get(root_url, timeout=timeout)
+        if r.status_code == 200:
+            cms = detect_cms(r.text, r.headers)
+    except Exception:
+        pass
+    
+    print(f"  [CMS] Detected: {cms}")
     
     robots_url = urljoin(root_url, "/robots.txt")
     sitemaps = []
@@ -108,10 +145,10 @@ def discover_wp_and_sitemaps(session, root_url, netloc, add_page_callback, respe
     base_api = urljoin(root_url, "/wp-json/wp/v2/")
     try:
         r = session.get(urljoin(base_api, "types"), timeout=timeout)
-        if r.status_code != 200: return
+        if r.status_code != 200: return cms
         types_data = r.json()
     except Exception:
-        return
+        return cms
 
     endpoints = [(slug, info["rest_base"]) for slug, info in types_data.items() if info.get("rest_base")]
     known_bases = {x[1] for x in endpoints}
@@ -145,3 +182,4 @@ def discover_wp_and_sitemaps(session, root_url, netloc, add_page_callback, respe
             page_no += 1
             
         print(f"  [WP API] {typ}: {count} public URLs")
+    return cms

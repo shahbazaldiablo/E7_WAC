@@ -96,7 +96,7 @@ def generate_reports_from_db(db_name, root, stamp, safe_name, elapsed, folder_na
                      "Redirect Chain": r["redirect_chain"], "Final URL": r["final_url"], "Content-Type": r["content_type"],
                      "Response Time (s)": r["response_time"], "Error": r["error"], "Classification": r["classification"], "Severity": r["severity"],
                      "Title": r["seo_title"], "Meta Description": r["seo_desc"], "Canonical": r["seo_canonical"],
-                     "Robots": r["seo_robots"], "H1": r["seo_h1"]} for r in c.fetchall()]
+                     "Robots": r["seo_robots"], "H1": r["seo_h1"], "Hreflang": r["seo_hreflang"]} for r in c.fetchall()]
 
         for name in STATUS_ORDER:
             rows = get_rows("SELECT * FROM results WHERE classification='Standard' AND status_category=?", (name,))
@@ -121,10 +121,10 @@ def generate_reports_from_db(db_name, root, stamp, safe_name, elapsed, folder_na
                               col_widths=[65, 13, 22, 22, 15, 18, 65])
 
         if mode in ["full", "seo"]:
-            seo_headers = ["Page URL", "Initial Status", "Severity", "Title", "Meta Description", "Canonical", "Robots", "H1"]
-            seo_widths = [55, 13, 15, 60, 80, 55, 30, 45]
-            c.execute("SELECT page_url, initial_status, severity, seo_title, seo_desc, seo_canonical, seo_robots, seo_h1 FROM results WHERE resource_type='Page' AND initial_status=200")
-            seo_rows = [{"Page URL": r[0], "Initial Status": r[1], "Severity": r[2], "Title": r[3], "Meta Description": r[4], "Canonical": r[5], "Robots": r[6], "H1": r[7]} for r in c.fetchall()]
+            seo_headers = ["Page URL", "Initial Status", "Severity", "Title", "Meta Description", "Canonical", "Robots", "H1", "Hreflang"]
+            seo_widths = [55, 13, 15, 60, 80, 55, 30, 45, 60]
+            c.execute("SELECT page_url, initial_status, severity, seo_title, seo_desc, seo_canonical, seo_robots, seo_h1, seo_hreflang FROM results WHERE resource_type='Page' AND initial_status=200")
+            seo_rows = [{"Page URL": r[0], "Initial Status": r[1], "Severity": r[2], "Title": r[3], "Meta Description": r[4], "Canonical": r[5], "Robots": r[6], "H1": r[7], "Hreflang": r[8]} for r in c.fetchall()]
             write_excel_sheet(wb.create_sheet("On-Page SEO"), seo_rows, seo_headers, seo_widths)
 
     else:
@@ -160,7 +160,7 @@ def generate_reports_from_db(db_name, root, stamp, safe_name, elapsed, folder_na
     wb.save(xlsx_filename)
     
     # CSV Writer
-    csv_headers = ["Requested URL", "Resource URL", "Resource Type", "Initial Status", "Final Status", "Status Category", "Redirect Chain", "Final URL", "Content-Type", "Response Time (s)", "Error", "Classification", "Severity", "Title", "Meta Description", "Canonical", "Robots", "H1"]
+    csv_headers = ["Requested URL", "Resource URL", "Resource Type", "Initial Status", "Final Status", "Status Category", "Redirect Chain", "Final URL", "Content-Type", "Response Time (s)", "Error", "Classification", "Severity", "Title", "Meta Description", "Canonical", "Robots", "H1", "Hreflang"]
     with open(csv_filename, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.DictWriter(f, fieldnames=csv_headers)
         writer.writeheader()
@@ -173,7 +173,7 @@ def generate_reports_from_db(db_name, root, stamp, safe_name, elapsed, folder_na
                 "Content-Type": r["content_type"], "Response Time (s)": r["response_time"], "Error": r["error"],
                 "Classification": r["classification"], "Severity": r["severity"],
                 "Title": r["seo_title"], "Meta Description": r["seo_desc"], "Canonical": r["seo_canonical"],
-                "Robots": r["seo_robots"], "H1": r["seo_h1"]
+                "Robots": r["seo_robots"], "H1": r["seo_h1"], "Hreflang": r["seo_hreflang"]
             })
             
     print(f"\nExcel: {xlsx_filename}\nCSV:   {csv_filename}")

@@ -11,15 +11,15 @@ def setup_db(db_name, root, netloc, mode, workers, max_pages, max_resources, res
         id INTEGER PRIMARY KEY CHECK (id = 1),
         site_url TEXT, domain TEXT, start_time TEXT, version TEXT, mode TEXT,
         workers INTEGER, max_pages INTEGER, max_resources INTEGER,
-        respect_robots INTEGER, delay REAL
+        respect_robots INTEGER, delay REAL, cms_type TEXT
     )""")
     
     # Ensure metadata exists
     c.execute("SELECT COUNT(*) FROM scan_metadata")
     if c.fetchone()[0] == 0:
         c.execute("""INSERT INTO scan_metadata (
-            id, site_url, domain, start_time, version, mode, workers, max_pages, max_resources, respect_robots, delay
-        ) VALUES (1, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?)""", 
+            id, site_url, domain, start_time, version, mode, workers, max_pages, max_resources, respect_robots, delay, cms_type
+        ) VALUES (1, ?, ?, datetime('now'), ?, ?, ?, ?, ?, ?, ?, 'Unknown')""", 
         (root, netloc, VERSION, mode, workers, max_pages, max_resources, 1 if respect_robots else 0, delay))
     
     c.execute("CREATE TABLE IF NOT EXISTS queue (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT UNIQUE)")
@@ -30,7 +30,7 @@ def setup_db(db_name, root, netloc, mode, workers, max_pages, max_resources, res
         page_url TEXT, resource_url TEXT, resource_type TEXT, initial_status INTEGER, final_status INTEGER,
         status_category TEXT, redirect_chain TEXT, final_url TEXT, content_type TEXT, response_time REAL, 
         error TEXT, classification TEXT, severity TEXT,
-        seo_title TEXT, seo_desc TEXT, seo_canonical TEXT, seo_robots TEXT, seo_h1 TEXT
+        seo_title TEXT, seo_desc TEXT, seo_canonical TEXT, seo_robots TEXT, seo_h1 TEXT, seo_hreflang TEXT
     )""")
     c.execute("CREATE TABLE IF NOT EXISTS meta_wp (typ TEXT PRIMARY KEY, count INTEGER)")
     conn.commit()

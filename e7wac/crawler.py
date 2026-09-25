@@ -94,7 +94,7 @@ def process_queue(session, queue, checked_pages, discovered_pages, checked_resou
             result = fetch_url(session, page_url, netloc, timeout=timeout, stream=False, is_page=True)
             html_content = result["html"]
             
-        seo_data = extract_seo_tags(html_content) if mode in ("full", "seo") else {"seo_title": "", "seo_desc": "", "seo_canonical": "", "seo_robots": "", "seo_h1": ""}
+        seo_data = extract_seo_tags(html_content) if mode in ("full", "seo") else {"seo_title": "", "seo_desc": "", "seo_canonical": "", "seo_robots": "", "seo_h1": "", "seo_hreflang": ""}
         
         cls_page = get_classification(page_url, netloc, "Page")
         status_cat_page = categorize_status(result["initial_status"])
@@ -104,10 +104,10 @@ def process_queue(session, queue, checked_pages, discovered_pages, checked_resou
             page_url, page_url, "Page", result["initial_status"], result["final_status"], status_cat_page,
             result["redirect_chain"], result["final_url"], result["content_type"], result["response_time"], result["error"],
             cls_page, severity_page,
-            seo_data["seo_title"], seo_data["seo_desc"], seo_data["seo_canonical"], seo_data["seo_robots"], seo_data["seo_h1"]
+            seo_data["seo_title"], seo_data["seo_desc"], seo_data["seo_canonical"], seo_data["seo_robots"], seo_data["seo_h1"], seo_data["seo_hreflang"]
         )
         # If mode is images, we still save the page to avoid fetching it again
-        c.execute("INSERT INTO results VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", row_tpl)
+        c.execute("INSERT INTO results VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", row_tpl)
         
         if not html_content or mode == "content":
             conn.commit()
@@ -149,9 +149,9 @@ def process_queue(session, queue, checked_pages, discovered_pages, checked_resou
                             r["page_url"], r["resource_url"], r["resource_type"], r["initial_status"], r["final_status"], r["status_category"],
                             r["redirect_chain"], r["final_url"], r["content_type"], r["response_time"], r["error"],
                             r["classification"], r["severity"],
-                            r["seo_title"], r["seo_desc"], r["seo_canonical"], r["seo_robots"], r["seo_h1"]
+                            r["seo_title"], r["seo_desc"], r["seo_canonical"], r["seo_robots"], r["seo_h1"], ""
                         )
-                        c.execute("INSERT INTO results VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", res_tpl)
+                        c.execute("INSERT INTO results VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", res_tpl)
                     except Exception:
                         pass
                         
