@@ -1,6 +1,6 @@
 # Eagle7 Website Audit Crawler (E7_WAC)
 
-Welcome! **E7_WAC** is a powerful but easy-to-use tool that scans your website for broken links, missing images, and SEO issues. Once it finishes, it hands you a beautifully formatted Excel report showing exactly what needs to be fixed.
+Welcome! **E7_WAC** is a powerful, CMS-agnostic tool that scans any website (WordPress, TYPO3, Shopify, custom HTML, and more) for broken links, missing images, and SEO issues. Once it finishes, it hands you a beautifully formatted Excel report showing exactly what needs to be fixed.
 
 Whether you are a beginner looking to check a single website or a developer needing deep technical data, this guide will get you up and running in minutes.
 
@@ -89,6 +89,9 @@ For software engineers and technical SEOs, E7 WAC is an enterprise-grade auditin
 
 ### Deep Discovery Mechanics
 Standard crawlers just follow `<a>` tags. Eagle7 goes deeper to find "orphan" pages and hidden endpoints before the standard HTML crawl even begins:
+*   **CMS-Agnostic Resolution**: Safely resolves all relative URLs and properly handles document `<base href>` overrides, ensuring perfect routing for platforms like TYPO3 or Next.js.
+*   **Intelligent CMS Fingerprinting**: Automatically detects the underlying generator (WordPress, TYPO3, Shopify, Joomla, Drupal, Squarespace, Wix, Webflow) and records it without blocking generic crawling.
+*   **Hreflang Extraction**: Natively parses `<link rel="alternate" hreflang="...">` tags into a structured JSON map, providing bulletproof validation for multilingual sites.
 *   **WordPress REST API Probing**: Queries `/wp-json/wp/v2/types` to discover every public Post, Page, and Custom Post Type directly from the database.
 *   **Sitemap & Robots.txt Parsing**: Automatically checks `robots.txt` for sitemap directives and parses XML sitemaps to seed the queue.
 *   **CSS Regex Extraction**: In `--mode images`, it actively downloads external `.css` stylesheets and uses Regex to extract and validate `background-image: url(...)` references.

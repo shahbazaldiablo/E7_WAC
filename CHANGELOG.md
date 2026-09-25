@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.0] - 2026-09-25
+
+### Added
+- CMS-Agnostic architecture: Gracefully audits TYPO3, Shopify, Next.js, and standard HTML sites without relying on WordPress assumptions.
+- Hreflang extraction: Natively parses `<link rel="alternate" hreflang="...">` for multilingual site validation.
+- Intelligent CMS Fingerprinting: Detects and logs the underlying generator/CMS into the scan metadata.
+- Support for `<base href="...">` and `<area href="...">` URL resolutions.
+
+### Fixed
+- Relative URLs are now safely resolved against the document's `<base>` tag rather than the current URL path.
+- Import error for `is_same_domain` in `crawler.py` causing NameErrors in Phase 2.
+
 ## [0.8.0] - 2026-08-18
 
 ### Added
